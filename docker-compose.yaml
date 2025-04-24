@@ -1,0 +1,7 @@
+services:
+  ubuntu-ssh:
+    build: .
+    container_name: ubuntu-ssh-container
+    restart: always
+    volumes:
+      - ./data:/data # Optional: Mount a persistent volume for data storage
