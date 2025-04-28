@@ -57,7 +57,7 @@ ENV SHELL=/bin/zsh
 RUN curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
 
 # Download and install the latest git-delta .deb (replace version as needed)
-RUN wget -O /tmp/git-delta.deb https://github.com/dandavison/delta/releases/download/0.18.2/git-delta_0.18.2_arm64.deb \
+RUN wget -O /tmp/git-delta.deb https://github.com/dandavison/delta/releases/download/0.18.2/git-delta_0.18.2_amd64.deb \
     && apt-get install -y /tmp/git-delta.deb \
     && rm /tmp/git-delta.deb
 
