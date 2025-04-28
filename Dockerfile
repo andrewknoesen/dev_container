@@ -57,9 +57,21 @@ ENV SHELL=/bin/zsh
 RUN curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
 
 # Download and install the latest git-delta .deb (replace version as needed)
-RUN wget -O /tmp/git-delta.deb https://github.com/dandavison/delta/releases/download/0.18.2/git-delta_0.18.2_amd64.deb \
-    && apt-get install -y /tmp/git-delta.deb \
-    && rm /tmp/git-delta.deb
+# RUN wget -O /tmp/git-delta.deb https://github.com/dandavison/delta/releases/download/0.18.2/git-delta_0.18.2_amd64.deb \
+#     && apt-get install -y /tmp/git-delta.deb \
+#     && rm /tmp/git-delta.deb
+
+ARG TARGETARCH
+RUN case "${TARGETARCH:-amd64}" in \
+      amd64) ARCH=amd64 ;; \
+      arm64) ARCH=arm64 ;; \
+      *) echo "Unsupported arch: $TARGETARCH" && exit 1 ;; \
+    esac && \
+    wget -O /tmp/git-delta.deb https://github.com/dandavison/delta/releases/download/0.18.2/git-delta_0.18.2_${ARCH}.deb && \
+    apt-get update && \
+    apt-get install -y /tmp/git-delta.deb && \
+    rm /tmp/git-delta.deb
+
 
 # Create the local bin directory for the root user (default in Docker)
 RUN mkdir -p /root/.local/bin
