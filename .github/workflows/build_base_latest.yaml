@@ -1,4 +1,4 @@
-name: Latest release
+name: Latest base release
 
 on:
   push:
@@ -39,7 +39,7 @@ jobs:
         id: push
         uses: docker/build-push-action@v5
         env:
-          BUILDKIT_PROGRESS: quiet   # or 'plain'
+          BUILDKIT_PROGRESS: plain   # or 'quiet'
         with:
           context: .
           push: true
@@ -70,7 +70,7 @@ jobs:
         id: push
         uses: docker/build-push-action@v5
         env:
-          BUILDKIT_PROGRESS: quiet   # or 'plain'
+          BUILDKIT_PROGRESS: plain   # or 'quiet'
         with:
           context: .
           push: true
