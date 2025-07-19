@@ -1,4 +1,4 @@
-name: Versioned release
+name: Dev release
 
 on:
   push:
