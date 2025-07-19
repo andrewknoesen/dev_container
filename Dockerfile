@@ -121,7 +121,7 @@ RUN cargo install tlrc --locked
 # Copy files into root's home directory (adjust if using a non-root user)
 COPY ./user_folder/ /root/
 
-# COPY ./nvim/ ~/.config/nvim/
+COPY ./nvim/ ~/.config/nvim/
 
 # Set working directory
 WORKDIR /workdir
