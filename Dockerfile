@@ -11,6 +11,11 @@ COPY .gitconfig /root/
 # Install dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+        build-essential \
+        cmake \
+        gcc \
+        make \
+        ripgrep \
         gpg \
         openssh-client \
         zsh \
@@ -28,8 +33,8 @@ RUN apt-get update && \
         python3-dev \
         python3-setuptools \
         nodejs \
-        cargo \
         npm \
+        cargo \
         fzf \
         fd-find \
         bat \
@@ -56,11 +61,7 @@ ENV SHELL=/bin/zsh
 # Zoxide
 RUN curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
 
-# Download and install the latest git-delta .deb (replace version as needed)
-# RUN wget -O /tmp/git-delta.deb https://github.com/dandavison/delta/releases/download/0.18.2/git-delta_0.18.2_amd64.deb \
-#     && apt-get install -y /tmp/git-delta.deb \
-#     && rm /tmp/git-delta.deb
-
+# git-delta
 ARG TARGETARCH
 RUN case "${TARGETARCH:-amd64}" in \
       amd64) ARCH=amd64 ;; \
@@ -71,6 +72,19 @@ RUN case "${TARGETARCH:-amd64}" in \
     apt-get update && \
     apt-get install -y /tmp/git-delta.deb && \
     rm /tmp/git-delta.deb
+
+# Neovim
+# Neovim
+RUN ARCH=$(dpkg --print-architecture) && \
+    if [ "$ARCH" = "arm64" ]; then \
+        wget https://github.com/neovim/neovim/releases/download/v0.11.0/nvim-linux-arm64.tar.gz -O nvim.tar.gz; \
+    else \
+        wget https://github.com/neovim/neovim/releases/download/v0.11.0/nvim-linux-x86_64.tar.gz -O nvim.tar.gz; \
+    fi && \
+    mkdir -p /opt/nvim && \
+    tar xzf nvim.tar.gz -C /opt && \
+    ln -s /opt/nvim-linux-$([ "$ARCH" = "arm64" ] && echo "arm64" || echo "x86_64")/bin/nvim /usr/local/bin/nvim && \
+    rm nvim.tar.gz
 
 
 # Create the local bin directory for the root user (default in Docker)
@@ -102,8 +116,12 @@ RUN cd ~/ && git clone https://github.com/junegunn/fzf-git.sh.git
 # TLDR
 RUN cargo install tlrc --locked
 
+
+
 # Copy files into root's home directory (adjust if using a non-root user)
 COPY ./user_folder/ /root/
+
+# COPY ./nvim/ ~/.config/nvim/
 
 # Set working directory
 WORKDIR /workdir
