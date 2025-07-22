@@ -118,14 +118,16 @@ RUN cd ~/ && git clone https://github.com/junegunn/fzf-git.sh.git
 
 # Setup lazygit
 RUN case "${TARGETARCH:-amd64}" in \
-    amd64) ARCH=armv64 ;; \
-    arm64) ARCH=arm64 ;; \
-    *) echo "Unsupported arch: $TARGETARCH" && exit 1 ;; \
+      amd64) ARCH=x86_64 ;; \
+      arm64) ARCH=arm64 ;; \
+      *) echo "Unsupported arch: $TARGETARCH" && exit 1 ;; \
     esac && \
-    LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | \grep -Po '"tag_name": *"v\K[^"]*') && \
-    curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_${TARGETARCH}.tar.gz" && \
+    LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": *"v\K[^"]*') && \
+    curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_${ARCH}.tar.gz" && \
     tar xf lazygit.tar.gz lazygit && \
-    sudo install lazygit -D -t /usr/local/bin/
+    install lazygit -D -t /usr/local/bin/ && \
+    rm lazygit lazygit.tar.gz
+
 
 # TLDR
 RUN cargo install tlrc --locked

@@ -1,0 +1,5 @@
+{
+    "image": "ghcr.io/andrewknoesen/dev_container:latest",
+    "features": [],
+    "customizations": {}
+}
