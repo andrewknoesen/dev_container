@@ -78,7 +78,6 @@ RUN case "${TARGETARCH:-amd64}" in \
     rm /tmp/git-delta.deb
 
 # Neovim
-# Neovim
 RUN ARCH=$(dpkg --print-architecture) && \
     if [ "$ARCH" = "arm64" ]; then \
     wget https://github.com/neovim/neovim/releases/download/v0.11.0/nvim-linux-arm64.tar.gz -O nvim.tar.gz; \
