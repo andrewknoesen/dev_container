@@ -11,29 +11,38 @@ COPY .gitconfig /root/
 # Install dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        gpg \
-        openssh-client \
-        zsh \
-        curl \
-        git \
-        wget \
-        tmux \
-        sudo \
-        software-properties-common \
-        ca-certificates \
-        ripgrep \
-        python3 \
-        python3-pip \
-        python3-venv \
-        python3-dev \
-        python3-setuptools \
-        nodejs \
-        cargo \
-        npm \
-        fzf \
-        fd-find \
-        bat \
-        eza && \
+    build-essential \
+    xclip \
+    cmake \
+    gcc \
+    make \
+    ripgrep \
+    gpg \
+    openssh-client \
+    zsh \
+    curl \
+    git \
+    wget \
+    tmux \
+    sudo \
+    software-properties-common \
+    unzip \
+    tar \
+    gzip \
+    ca-certificates \
+    ripgrep \
+    python3 \
+    python3-pip \
+    python3-venv \
+    python3-dev \
+    python3-setuptools \
+    nodejs \
+    npm \
+    cargo \
+    fzf \
+    fd-find \
+    bat \
+    eza && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -45,32 +54,40 @@ RUN pip install git+https://github.com/DL909/thefuck.git
 
 # Install Oh My Zsh and plugins
 RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.2.1/zsh-in-docker.sh)" -- \
--t robbyrussell \
--p git \
--p https://github.com/zsh-users/zsh-autosuggestions \
--p https://github.com/zsh-users/zsh-completions \
--p https://github.com/zsh-users/zsh-syntax-highlighting
+    -t robbyrussell \
+    -p git \
+    -p https://github.com/zsh-users/zsh-autosuggestions \
+    -p https://github.com/zsh-users/zsh-completions \
+    -p https://github.com/zsh-users/zsh-syntax-highlighting
 
 ENV SHELL=/bin/zsh
 
 # Zoxide
 RUN curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
 
-# Download and install the latest git-delta .deb (replace version as needed)
-# RUN wget -O /tmp/git-delta.deb https://github.com/dandavison/delta/releases/download/0.18.2/git-delta_0.18.2_amd64.deb \
-#     && apt-get install -y /tmp/git-delta.deb \
-#     && rm /tmp/git-delta.deb
-
+# git-delta
 ARG TARGETARCH
 RUN case "${TARGETARCH:-amd64}" in \
-      amd64) ARCH=amd64 ;; \
-      arm64) ARCH=arm64 ;; \
-      *) echo "Unsupported arch: $TARGETARCH" && exit 1 ;; \
+    amd64) ARCH=amd64 ;; \
+    arm64) ARCH=arm64 ;; \
+    *) echo "Unsupported arch: $TARGETARCH" && exit 1 ;; \
     esac && \
     wget -O /tmp/git-delta.deb https://github.com/dandavison/delta/releases/download/0.18.2/git-delta_0.18.2_${ARCH}.deb && \
     apt-get update && \
     apt-get install -y /tmp/git-delta.deb && \
     rm /tmp/git-delta.deb
+
+# Neovim
+RUN ARCH=$(dpkg --print-architecture) && \
+    if [ "$ARCH" = "arm64" ]; then \
+    wget https://github.com/neovim/neovim/releases/download/v0.11.0/nvim-linux-arm64.tar.gz -O nvim.tar.gz; \
+    else \
+    wget https://github.com/neovim/neovim/releases/download/v0.11.0/nvim-linux-x86_64.tar.gz -O nvim.tar.gz; \
+    fi && \
+    mkdir -p /opt/nvim && \
+    tar xzf nvim.tar.gz -C /opt && \
+    ln -s /opt/nvim-linux-$([ "$ARCH" = "arm64" ] && echo "arm64" || echo "x86_64")/bin/nvim /usr/local/bin/nvim && \
+    rm nvim.tar.gz
 
 
 # Create the local bin directory for the root user (default in Docker)
@@ -99,11 +116,28 @@ RUN mkdir -p ~/.fonts && cd ~/.fonts && \
 # Setup fzf
 RUN cd ~/ && git clone https://github.com/junegunn/fzf-git.sh.git
 
+# Setup lazygit
+RUN case "${TARGETARCH:-amd64}" in \
+    amd64) ARCH=armv64 ;; \
+    arm64) ARCH=arm64 ;; \
+    *) echo "Unsupported arch: $TARGETARCH" && exit 1 ;; \
+    esac && \
+    LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | \grep -Po '"tag_name": *"v\K[^"]*') && \
+    curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_${TARGETARCH}.tar.gz" && \
+    tar xf lazygit.tar.gz lazygit && \
+    sudo install lazygit -D -t /usr/local/bin/
+
 # TLDR
 RUN cargo install tlrc --locked
 
+# Stylua
+RUN cargo install stylua 
+ENV PATH="/root/.cargo/bin:${PATH}"
+
 # Copy files into root's home directory (adjust if using a non-root user)
 COPY ./user_folder/ /root/
+
+COPY ./nvim/ root/.config/nvim/
 
 # Set working directory
 WORKDIR /workdir
