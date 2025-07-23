@@ -52,6 +52,10 @@ RUN python3 -m venv /opt/venv
 # RUN pip install thefuck
 RUN pip install git+https://github.com/DL909/thefuck.git
 
+# Install UV
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV UV_LINK_MODE=copy
+
 # Install Oh My Zsh and plugins
 RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.2.1/zsh-in-docker.sh)" -- \
     -t robbyrussell \
