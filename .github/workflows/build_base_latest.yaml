@@ -2,7 +2,7 @@ name: Latest base release
 
 on:
   push:
-    branches: ['release']
+    branches: ["release"]
   workflow_dispatch:
 
 env:
@@ -33,13 +33,13 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-              type=raw,value=latest-amd64,event=branch
+            type=raw,value=latest-amd64,event=branch
 
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@v5
         env:
-          BUILDKIT_PROGRESS: quiet   # or 'plain'
+          BUILDKIT_PROGRESS: quiet # or 'plain'
         with:
           context: .
           push: true
@@ -64,13 +64,13 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-              type=raw,value=latest-arm64,event=branch
+            type=raw,value=latest-arm64,event=branch
 
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@v5
         env:
-          BUILDKIT_PROGRESS: quiet   # or 'plain'
+          BUILDKIT_PROGRESS: quiet # or 'plain'
         with:
           context: .
           push: true
@@ -85,10 +85,13 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Wait for GHCR to register images
+        run: sleep 30
+
       - name: Create and push manifest
         run: |
           docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
             --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-amd64 \
             --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-arm64
           docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-
