@@ -4,7 +4,7 @@ ENV PATH="/opt/venv/bin:/root/.cargo/bin:/root/.local/bin:${PATH}"
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TERM=xterm
-
+ENV LANG="en_US.UTF-8"
 # Copy git config
 COPY .gitconfig /root/
 
