@@ -79,6 +79,14 @@ return {
 					[vim.diagnostic.severity.INFO] = " ",
 				},
 			},
+			-- Show error message at the end of the line
+			virtual_text = true,
+			-- Underline the text with the error
+			underline = true,
+			-- Don't update diagnostics while in insert mode
+			update_in_insert = false,
+			-- Sort diagnostics by severity
+			severity_sort = true,
 		})
 
 		vim.lsp.config("*", {
