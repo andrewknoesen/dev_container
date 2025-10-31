@@ -1,4 +1,4 @@
-FROM ubuntu:25.04
+FROM ubuntu:plucky-20251001
 
 ENV PATH="/opt/venv/bin:/root/.cargo/bin:/root/.local/bin:${PATH}"
 
